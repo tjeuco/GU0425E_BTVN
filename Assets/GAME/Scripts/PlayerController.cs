@@ -8,39 +8,40 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField]
     PLAYER_STATE _playerState = PLAYER_STATE.IsIdle;
+    public PLAYER_STATE PlayerState => _playerState;
+
     [SerializeField] bool _isShoot = false;
     public bool IsShoot => _isShoot;
-
-    public PLAYER_STATE PlayerState => _playerState;
+    
     [SerializeField]
     AnimController anim;
 
-    [SerializeField] float Speed = 10, jumpForce = 100;
+    [SerializeField]
+    float Speed = 10, jumpForce = 100;
 
-    Rigidbody2D rigidbody2D;
+    Rigidbody2D rg;
 
+    public enum PLAYER_STATE
+    {
+        IsIdle = 0,
+        IsRun = 1,
+        IsJump = 2,
+        IsShoot = 3
+    }
 
     void Start()
     {
         this.anim = this.GetComponentInChildren<AnimController>();
-        this.rigidbody2D = this.GetComponent<Rigidbody2D>();
-
-       
+        this.rg = this.GetComponent<Rigidbody2D>();       
     }
 
     void Update()
     {
         this.AutoDetectState();
-        float face = this.transform.localScale.x;
-        if (Input.GetAxisRaw("Horizontal") != 0)
-        {
-            face = Input.GetAxisRaw("Horizontal");
-        }
-
-        this.transform.localScale = new Vector3(face, 1, 1);
+        this.FlipPlayer();
 
         if (Input.GetKeyDown(KeyCode.Space))
-            this.rigidbody2D.AddForce(Vector2.up * jumpForce);
+            this.rg.AddForce(Vector2.up * jumpForce);
 
         this._isShoot = Input.GetKey(KeyCode.C);
 
@@ -56,38 +57,31 @@ public class PlayerController : MonoBehaviour
              this.Speed = 10;
         }
     }
+    void FlipPlayer()
+    {
+        float face = this.transform.localScale.x;
+        if (Input.GetAxisRaw("Horizontal") != 0)
+        {
+            face = Input.GetAxisRaw("Horizontal");
+        }
 
+        this.transform.localScale = new Vector3(face, 1, 1);
+    }
     void FixedUpdate()
     {
-        Vector2 movement = this.rigidbody2D.velocity;
+        Vector2 movement = this.rg.velocity;
         movement.x = Input.GetAxisRaw("Horizontal") * this.Speed;
-        this.rigidbody2D.velocity = movement;
+        this.rg.velocity = movement;
     }
 
     void AutoDetectState()
     {
-        if (this.rigidbody2D.velocity.y != 0)
+        if (this.rg.velocity.y != 0)
         {
             this._playerState = PLAYER_STATE.IsJump;
             return;
         }
-        this._playerState = Math.Abs(this.rigidbody2D.velocity.x) > 0.1f ? PLAYER_STATE.IsRun : PLAYER_STATE.IsIdle;
+        this._playerState = Math.Abs(this.rg.velocity.x) > 0.1f ? PLAYER_STATE.IsRun : PLAYER_STATE.IsIdle;
     }
 
-    void OnCollisionEnter2D(Collision2D collision2D)
-    {
-        this.transform.SetParent(collision2D.transform);
-    }
-
-     void OnCollisionExit2D(Collision2D collision2D)
-    {
-        this.transform.SetParent(null);
-    }
-
-    public enum PLAYER_STATE
-    {
-        IsIdle = 0,
-        IsRun = 1,
-        IsJump = 2
-    }
 }
