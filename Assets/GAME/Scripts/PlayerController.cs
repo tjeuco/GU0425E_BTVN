@@ -10,16 +10,18 @@ public class PlayerController : MonoBehaviour
     PLAYER_STATE _playerState = PLAYER_STATE.IsIdle;
     public PLAYER_STATE PlayerState => _playerState;
 
-    [SerializeField] bool _isShoot = false;
+    private bool _isShoot = false;
     public bool IsShoot => _isShoot;
-    
-    [SerializeField]
-    AnimController anim;
-
-    [SerializeField]
-    float Speed = 10, jumpForce = 100;
-
-    Rigidbody2D rg;
+    private AnimController anim;
+    private bool isGround;
+    [Header("---Player Move Info---")]
+    [SerializeField] private float Speed = 10f;
+    [SerializeField] private float jumpForce = 10f;
+    [SerializeField] private int numberJumpMax = 2;
+    [SerializeField] private Transform pointCheckGround;
+    [SerializeField] private LayerMask layerGround;
+    private int tempNumberJump = 1;
+    private Rigidbody2D rg;
 
     public enum PLAYER_STATE
     {
@@ -39,10 +41,7 @@ public class PlayerController : MonoBehaviour
     {
         this.AutoDetectState();
         this.FlipPlayer();
-
-        if (Input.GetKeyDown(KeyCode.Space))
-            this.rg.AddForce(Vector2.up * jumpForce);
-
+        this.PlayerJump();
         this._isShoot = Input.GetKey(KeyCode.C);
 
         if (Input.GetKeyDown(KeyCode.Z))
@@ -72,6 +71,26 @@ public class PlayerController : MonoBehaviour
         Vector2 movement = this.rg.velocity;
         movement.x = Input.GetAxisRaw("Horizontal") * this.Speed;
         this.rg.velocity = movement;
+    }
+    void PlayerJump()
+    {
+        isGround = Physics2D.OverlapCircle(pointCheckGround.position, 0.1f, layerGround);
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            if (tempNumberJump < numberJumpMax)
+            {
+                // this.rg.AddForce(new Vector2(this.rg.velocity.x, jumpForce));
+                this.rg.velocity = new Vector2(this.rg.velocity.x, jumpForce);
+                jumpForce += 20f;
+                tempNumberJump++;
+            }
+            Debug.Log("So lan nhay:" + tempNumberJump);
+        }
+        if (isGround)
+        {
+            tempNumberJump = 1;
+            jumpForce = 10f;
+        }
     }
 
     void AutoDetectState()
