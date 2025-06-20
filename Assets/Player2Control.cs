@@ -17,7 +17,6 @@ public class Player2Control : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
         if (enemyManager == null || enemyManager.enemyPerfabList == null) return;
         target = enemyManager.enemyPerfabList[0].transform.position;
         MovePlayer(target);
