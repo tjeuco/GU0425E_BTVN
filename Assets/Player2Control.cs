@@ -22,12 +22,12 @@ public class Player2Control : MonoBehaviour
         MovePlayer(target);
     }
     void MovePlayer(Vector3 target)
-    {
+    { 
         Vector3 dir = (target - this.transform.position).normalized;
         this.transform.position += dir * speedMove * Time.deltaTime;
         if (dir.magnitude < 0.3f)
         {
-            GameObject e = Instantiate(enemy2Perfab, enemyManager.enemyPerfabList[0].transform.position, Quaternion.identity);
+            GameObject ene = Instantiate(enemy2Perfab, enemyManager.enemyPerfabList[0].transform.position, Quaternion.identity);
             Destroy(enemyManager.enemyPerfabList[0].gameObject);
             enemyManager.enemyPerfabList.RemoveAt(0);
         }
